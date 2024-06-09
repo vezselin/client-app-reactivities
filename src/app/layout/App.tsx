@@ -13,9 +13,11 @@ function App() {
     const [selectedActivities,setSelectedActivities] = useState<Activity | undefined>(undefined)
     const [editMode,setEditMode] = useState<boolean>(false)
     const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
+
     useEffect(()=>{
         agent.Activities.list().then(res =>{
-            let activities: Activity[] = [];
+            const activities: Activity[] = [];
             res.forEach(activity =>{
                 activity.date = activity.date.split('T')[0]
                 activities.push(activity)
@@ -44,24 +46,44 @@ function App() {
         setEditMode(true);
 
     }
+
     function handleFormClose(){
         setSelectedActivities(undefined)
         setEditMode(false);
     }
+
     function handleCreateOrEditActivity(activity:Activity){
         // setActivities(activities.map(activity =>
         //     activity.id === updatedActivity.id ? updatedActivity : activity
         // )); This one will only edit the activity and keep it in the same position
-        activity.id
-            ? setActivities([...activities.filter(a=> a.id !== activity.id), activity])
-            : setActivities([...activities , {...activity, id: uuid()}])
-        setEditMode(false)
-        setSelectedActivities(activity)
+        setSubmitting(true);
+        if(activity.id){
+            agent.Activities.update(activity).then(()=>{
+                setActivities([...activities.filter(a=> a.id !== activity.id), activity])
+                setSelectedActivities(activity);
+                setEditMode(false);
+                setSubmitting(false);
+            })
+        } else{
+            activity.id = uuid()
+            agent.Activities.create(activity).then(()=>{
+                setActivities([...activities , {...activity, id: uuid()}])
+                setSelectedActivities(activity);
+
+                setEditMode(false);
+                setSubmitting(false);
+            })
+        }
     }
 
     function HandleDeleteActivity(id:string){
-        setActivities([...activities.filter(a=>a.id != id)])
+        setSubmitting(true)
+        agent.Activities.delete(id).then(()=>{
+            setActivities([...activities.filter(a=>a.id != id)])
+            setSubmitting(false);
+        })
     }
+
 if (loading) return <Loading content={"Loading activities"}/>
   return (
       <>
@@ -76,6 +98,7 @@ if (loading) return <Loading content={"Loading activities"}/>
                                closeForm={handleFormClose}
                                createOrEditActivity={handleCreateOrEditActivity}
                                deleteActivity={HandleDeleteActivity}
+                               submitting={submitting}
             />
           </Container>
       </>

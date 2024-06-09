@@ -5,10 +5,16 @@ import {ChangeEvent, useEffect, useState} from "react";
 interface ActivityFormProps {
     activity?: Activity,
     closeFrom: () => void,
-    createOrEdit: (activity: Activity) => void
+    createOrEdit: (activity: Activity) => void,
+    submitting: boolean
 }
 
-export default function ActivityForm({closeFrom, activity: selectedActivity, createOrEdit}: ActivityFormProps) {
+export default function ActivityForm({
+                                         closeFrom,
+                                         activity: selectedActivity,
+                                         createOrEdit,
+                                         submitting
+                                     }: ActivityFormProps) {
 
     const initialForm = selectedActivity ?? {
         id: '',
@@ -47,13 +53,13 @@ export default function ActivityForm({closeFrom, activity: selectedActivity, cre
                             onChange={handleChange}></Form.Input>
                 <Form.Input placeholder={"Category"} value={activity.category} name={'category'}
                             onChange={handleChange}></Form.Input>
-                <Form.Input placeholder={"Date"} value={activity.date} name={'date'}
+                <Form.Input type='date' placeholder={"Date"} value={activity.date} name={'date'}
                             onChange={handleChange}></Form.Input>
                 <Form.Input placeholder={"City"} value={activity.city} name={'city'}
                             onChange={handleChange}></Form.Input>
                 <Form.Input placeholder={"Venue"} value={activity.venue} name={'venue'}
                             onChange={handleChange}></Form.Input>
-                <Button type="submit" floated="right" content="Submit" positive></Button>
+                <Button loading={submitting} type="submit" floated="right" content="Submit" positive></Button>
                 <Button onClick={closeFrom} type="button" floated="right" content="Cancel"></Button>
             </Form>
         </Segment>
