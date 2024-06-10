@@ -3,13 +3,16 @@ import {Activity} from "../../../app/models/activity.ts";
 import {ChangeEvent, useEffect, useState} from "react";
 import {useStore} from "../../../app/stores/store.ts";
 import {observer} from "mobx-react-lite";
-
-
+import {Link, useNavigate, useParams} from "react-router-dom";
+import Loading from "../../../app/layout/Loading.tsx";
+import {v4 as uuid} from "uuid";
 
 export default observer(function ActivityForm() {
     const {activityStore} = useStore();
-    const {selectedActivity, closeForm, createActivity, updateActivity, loading} = activityStore
-    const initialForm = selectedActivity ?? {
+    const {createActivity, updateActivity, loading,loadActivity,loadingInitial} = activityStore
+    const {id} = useParams();
+    const navigate = useNavigate();
+    const [activity,setActivity] = useState<Activity>({
         id: '',
         title: '',
         category: '',
@@ -17,24 +20,28 @@ export default observer(function ActivityForm() {
         date: '',
         city: '',
         venue: '',
-
-    }
-    const [activity, setActivity] = useState<Activity>(initialForm);
+    })
 
     useEffect(() => {
-        if (selectedActivity) {
-            setActivity(selectedActivity);
-        }
-    }, [selectedActivity]);
+        if (id) loadActivity(id).then(activity => setActivity((activity!)))
+    }, [id,loadActivity]);
 
     function handleSubmit() {
-        activity.id ? updateActivity(activity) : createActivity(activity);
+        if(!activity.id){
+            activity.id= uuid();
+            createActivity(activity).then(()=> navigate(`/activities/${activity.id}`));
+        }
+        else{
+            updateActivity(activity).then(()=> navigate(`/activities/${activity.id}`));
+        }
     }
 
     function handleChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
         const {name, value} = event.target;
         setActivity({...activity, [name]: value});
     }
+
+    if(loadingInitial) {return <Loading/>}
 
     return (
         <Segment clearing>
@@ -52,7 +59,7 @@ export default observer(function ActivityForm() {
                 <Form.Input placeholder={"Venue"} value={activity.venue} name={'venue'}
                             onChange={handleChange}></Form.Input>
                 <Button loading={loading} type="submit" floated="right" content="Submit" positive></Button>
-                <Button onClick={closeForm} type="button" floated="right" content="Cancel"></Button>
+                <Button as={Link} to='/activities' type="button" floated="right" content="Cancel"></Button>
             </Form>
         </Segment>
     )
