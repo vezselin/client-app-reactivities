@@ -28,6 +28,17 @@ export default class ActivityStore{
             .sort((activityA, activityB)=> Date.parse(activityA.date) - Date.parse(activityB.date));
     }
 
+    get groupedActivities(){
+        //Array of object, each object has activity date as key
+        return Object.entries(
+            this.activitiesByDate.reduce((activities, activity) =>{
+                const date = activity.date;
+                activities[date] = activities[date] ? [...activities[date],activity] : [activity];
+                return activities;
+            },{} as {[key:string]:Activity[]})
+        )
+    }
+
     loadActivity = async (id:string) =>{
         let activity = this.getActivity(id)
         if (activity) {
