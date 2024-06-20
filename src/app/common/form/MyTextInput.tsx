@@ -1,5 +1,5 @@
-import {useField} from "formik";
-import {FormField, Label} from "semantic-ui-react";
+import { useField } from "formik";
+import { FormField, Label } from "semantic-ui-react";
 
 interface MyTextInputProps {
     placeholder: string;
@@ -8,15 +8,16 @@ interface MyTextInputProps {
 }
 
 export default function MyTextInput(props: MyTextInputProps) {
-    const[field,meta] = useField(props.name)
-    return(
+    const [field, meta] = useField(props.name);
+    return (
         <FormField error={meta.touched && !!meta.error}>
             <label>{props.label}</label>
             <input {...field} {...props} />
             {meta.touched && meta.error ? (
-                <Label basic color={'red'}>{meta.error}</Label>
-            ) : null
-            }
+                <Label basic color={"red"}>
+                    {meta.error}
+                </Label>
+            ) : null}
         </FormField>
-    )
+    );
 }

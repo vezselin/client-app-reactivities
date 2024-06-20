@@ -1,5 +1,5 @@
 import ActivityStore from "./activityStore.ts";
-import {createContext, useContext} from "react";
+import { createContext, useContext } from "react";
 import CommonStore from "./commonStore.tsx";
 
 interface Store {
@@ -9,10 +9,10 @@ interface Store {
 
 export const store: Store = {
     activityStore: new ActivityStore(),
-    commonStore: new CommonStore()
-}
+    commonStore: new CommonStore(),
+};
 export const StoreContext = createContext(store);
 
-export function useStore(){
+export function useStore() {
     return useContext(StoreContext);
 }

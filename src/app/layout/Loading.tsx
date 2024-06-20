@@ -1,13 +1,16 @@
-import {Dimmer, Loader} from "semantic-ui-react";
+import { Dimmer, Loader } from "semantic-ui-react";
 
-interface LoadingProps{
-    inverted?:boolean;
+interface LoadingProps {
+    inverted?: boolean;
     content?: string;
 }
-export default  function Loading({inverted= true , content = "loading..."}: LoadingProps){
-    return(
-    <Dimmer active={true} inverted={inverted}>
-            <Loader content={content}/>
+export default function Loading({
+    inverted = true,
+    content = "loading...",
+}: LoadingProps) {
+    return (
+        <Dimmer active={true} inverted={inverted}>
+            <Loader content={content} />
         </Dimmer>
-    )
+    );
 }
