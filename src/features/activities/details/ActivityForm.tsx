@@ -1,16 +1,23 @@
-import {Button, Form, Segment} from "semantic-ui-react";
+import {Button, Segment} from "semantic-ui-react";
 import {Activity} from "../../../app/models/activity.ts";
 import {useEffect, useState} from "react";
 import {useStore} from "../../../app/stores/store.ts";
 import {observer} from "mobx-react-lite";
 import {Link, useParams} from "react-router-dom";
 import Loading from "../../../app/layout/Loading.tsx";
-import {Formik} from "formik";
+import {Formik, Form } from "formik";
+import * as Yup from "yup";
+import MyTextInput from "../../../app/common/form/MyTextInput.tsx";
+import MyTextArea from "../../../app/common/form/MyTextArea.tsx";
+import MySelectInput from "../../../app/common/form/MySelectInput.tsx";
+import {categoryOptions} from "../../../app/common/options/categoryOptions.ts";
+import MyDatePicker from "../../../app/common/form/MyDatePicker.tsx";
 
 export default observer(function ActivityForm() {
     const {activityStore} = useStore();
     const {loading,loadActivity,loadingInitial} = activityStore
     const {id} = useParams();
+
     const [activity,setActivity] = useState<Activity>({
         id: '',
         title: '',
@@ -19,6 +26,15 @@ export default observer(function ActivityForm() {
         date: '',
         city: '',
         venue: '',
+    })
+
+    const ValidationSchema = Yup.object({
+        title:Yup.string().required('Please enter a title'),
+        description:Yup.string().required('Please enter activity description'),
+        category:Yup.string().required(),
+        date:Yup.string().required(),
+        venue:Yup.string().required(),
+        city:Yup.string().required(),
     })
 
     useEffect(() => {
@@ -44,21 +60,25 @@ export default observer(function ActivityForm() {
 
     return (
         <Segment clearing>
-            <Formik enableReinitialize initialValues={activity} autoComplete="off" onSubmit={values=> console.log(values)}>
-                {({values: activity, handleChange, handleSubmit})=>(
-                    <Form onSubmit={handleSubmit} autoComplete="off">
-                        <Form.Input placeholder={"Title"} value={activity.title} name={'title'}
-                                    onChange={handleChange}></Form.Input>
-                        <Form.Input placeholder={"Description"} value={activity.description} name={'description'}
-                                    onChange={handleChange}></Form.Input>
-                        <Form.Input placeholder={"Category"} value={activity.category} name={'category'}
-                                    onChange={handleChange}></Form.Input>
-                        <Form.Input type='date' placeholder={"Date"} value={activity.date} name={'date'}
-                                    onChange={handleChange}></Form.Input>
-                        <Form.Input placeholder={"City"} value={activity.city} name={'city'}
-                                    onChange={handleChange}></Form.Input>
-                        <Form.Input placeholder={"Venue"} value={activity.venue} name={'venue'}
-                                    onChange={handleChange}></Form.Input>
+            <Formik enableReinitialize
+                    initialValues={activity}
+                    autoComplete="off"
+                    onSubmit={values=> console.log(values)}
+                    validationSchema={ValidationSchema}
+            >
+                {({handleSubmit})=>(
+                    <Form className='ui form' onSubmit={handleSubmit} autoComplete="off">
+                        <MyTextInput name={'title'} placeholder={'title'}/>
+                        <MyTextArea placeholder={"Description"} name={'description'} rows={3}/>
+                        <MySelectInput options={categoryOptions} placeholder={"Category"} name={'category'}/>
+                        <MyDatePicker  placeholderText="Date"
+                                       name='date'
+                                       showTimeSelect
+                                       timeCaption='time'
+                                       dateFormat='MMMM d, yyyy h:mm aa'
+                        />
+                        <MyTextInput placeholder={"City"} name={'city'} />
+                        <MyTextInput placeholder={"Venue"} name={'venue'}/>
                         <Button loading={loading} type="submit" floated="right" content="Submit" positive></Button>
                         <Button as={Link} to='/activities' type="button" floated="right" content="Cancel"></Button>
                     </Form>
