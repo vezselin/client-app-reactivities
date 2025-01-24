@@ -11,6 +11,23 @@ const sleep = (ms: number) => {
 
 axios.defaults.baseURL = 'http://localhost:5000/api'
 
+axios.interceptors.request.use(
+    (config) => {
+        // Retrieve the token from localStorage or your MobX store
+        const token = localStorage.getItem('jwt')
+
+        // If a token exists, add it to the Authorization header
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+        }
+
+        return config
+    },
+    (error) => {
+        return Promise.reject(error)
+    }
+)
+
 axios.interceptors.response.use(
     async (response) => {
         await sleep(1000)
